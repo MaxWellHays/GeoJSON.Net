@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Linq;
+using System.Net;
 
 namespace GeoJSON.Net.Tests
 {
@@ -31,7 +32,7 @@ namespace GeoJSON.Net.Tests
 }";
 				#endregion
 
-				var feature = JsonConvert.DeserializeObject<Feature.Feature>(geoJsonText);
+				var feature = JsonConvert.DeserializeObject<Net.Feature.Feature>(geoJsonText);
 
 				Assert.IsNotNull(feature);
 				Assert.IsNotNull(feature.Properties);
@@ -90,7 +91,7 @@ namespace GeoJSON.Net.Tests
 }";
 				#endregion
 
-				var featureCollection = JsonConvert.DeserializeObject<Feature.FeatureCollection>(geoJsonText);
+				var featureCollection = JsonConvert.DeserializeObject<Net.Feature.FeatureCollection>(geoJsonText);
 
 				Assert.IsNotNull(featureCollection.Features);
 				Assert.AreEqual(featureCollection.Features.Count, 3);
@@ -395,6 +396,21 @@ namespace GeoJSON.Net.Tests
 
             Assert.IsNotNull(featureCollection);
             Assert.AreEqual(1, featureCollection.Features.Count);
+        }
+
+
+        [TestMethod]
+        public void GeometryCollectionDeserialization()
+        {
+            string geoJsonText;
+            using (WebClient client = new WebClient())
+            {
+                geoJsonText = client.DownloadString("http://polygons.openstreetmap.fr/get_geojson.py?id=1204537");
+            }
+            GeometryCollection geometryCollection = JsonConvert.DeserializeObject<GeometryCollection>(geoJsonText,
+                new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
+
+            Assert.IsNotNull(geometryCollection);
         }
     }
 }
